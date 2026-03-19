@@ -6,7 +6,6 @@
     <title>米克潘的行为投影 | v9.5 数据分离稳定版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@200;500;700&display=swap" rel="stylesheet">
-    <!-- 数据文件注入点 -->
     <script src="./special_knowledge_data.js"></script>
     <style>
         :root { --zen-bg: #F5F5F0; --zen-ink: #333333; --zen-tea: #D2B48C; --zen-mist: rgba(210, 180, 140, 0.08); }
@@ -28,7 +27,6 @@
     <div class="progress-bar" id="progressBar" style="width: 0%"></div>
 
     <main id="app" class="max-w-xl mx-auto h-full relative">
-        <!-- 1. 首页 -->
         <div class="page active" id="page-welcome">
             <div class="text-center mb-10">
                 <h1 class="text-2xl font-extralight tracking-[0.4em] mb-4">米克潘 · 行为投影</h1>
@@ -46,12 +44,10 @@
             </div>
         </div>
 
-        <!-- 2. 答题页 -->
         <div class="page" id="page-quiz">
             <div id="q-content" class="w-full"></div>
         </div>
 
-        <!-- 3. 总结页 -->
         <div class="page" id="page-summary">
             <div class="text-center mb-6">
                 <p class="text-stone-700 text-lg font-light tracking-widest">观察报告初稿</p>
@@ -60,7 +56,6 @@
             <button onclick="doFinal()" id="final-btn" class="mt-8 bg-stone-800 text-white py-4 rounded-xl text-xs tracking-[0.4em] w-full shadow-xl">同步报告</button>
         </div>
 
-        <!-- 4. 成功页 -->
         <div class="page" id="page-success">
             <div class="text-center space-y-4">
                 <p class="text-xl font-light text-stone-800 tracking-[0.3em]">投影圆满，感谢见证</p>
@@ -72,7 +67,6 @@
         const CONFIG = { name: "米克潘", formId: "mnjgleoz" };
         let G_STATE = { idents: [], qs: [], cur: 0, ans: {} };
 
-        // 身份选择
         window.tId = function(btn, id) {
             btn.classList.toggle('selected');
             if (G_STATE.idents.includes(id)) G_STATE.idents = G_STATE.idents.filter(i => i !== id);
@@ -82,7 +76,6 @@
             startBtn.style.opacity = G_STATE.idents.length > 0 ? "1" : "0.3";
         };
 
-        // 核心抽题逻辑
         window.doStart = function() {
             if (typeof QUESTION_DATA === 'undefined') {
                 alert("数据文件加载失败，请确保 special_knowledge_data.js 存在且在同一目录下。");
@@ -92,11 +85,9 @@
             let primaryPool = [];
             G_STATE.idents.forEach(id => { if (QUESTION_DATA[id]) primaryPool = primaryPool.concat(QUESTION_DATA[id]); });
             
-            // 全量乱序池
             let allPool = [];
             Object.values(QUESTION_DATA).forEach(list => allPool = allPool.concat(list));
             
-            // 逻辑：优先从选中的身份中抽，不足10道从全量池（排除已选）中补齐
             let finalQs = primaryPool.sort(() => 0.5 - Math.random()).slice(0, 10);
             if (finalQs.length < 10) {
                 let remaining = allPool.filter(q => !finalQs.includes(q)).sort(() => 0.5 - Math.random());
@@ -169,16 +160,53 @@
             document.getElementById('summary-text').value = summary;
         }
 
+        // ==================== 已修复：选项与特质精准匹配 ====================
         window.doFinal = async function() {
             const btn = document.getElementById('final-btn');
-            btn.disabled = true; btn.textContent = "同步中...";
+            btn.disabled = true; 
+            btn.textContent = "同步中...";
+            
             const formData = new FormData();
             formData.append('Identity', G_STATE.idents.join(', '));
             formData.append('Report', document.getElementById('summary-text').value);
+
+            // 🔥 核心修复：根据用户选择的选项，只提取对应位置的特质
+            const answerDetails = G_STATE.qs.map((question, index) => {
+                const userSelectedIndexes = G_STATE.ans[index] || [];
+                
+                // 1. 生成用户选择的选项文本
+                const userSelectedTexts = userSelectedIndexes.map(idx => {
+                    if(idx === 4) return "E：他不擅长此场景 / 我不了解";
+                    return `${String.fromCharCode(65+idx)}：${question.a[idx]}`;
+                });
+
+                // 2. 🔥 只提取用户选中的选项 对应的特质（A=0,B=1,C=2,D=3）
+                const selectedTraits = userSelectedIndexes
+                    .filter(idx => idx < 4) // 过滤掉E选项
+                    .map(idx => question.t[idx]); // 只取选中下标对应的特质
+
+                return {
+                    题目序号: index + 1,
+                    题目内容: question.q,
+                    用户选择的选项: userSelectedTexts.join(" | "),
+                    选中的对应特质: selectedTraits.length > 0 ? selectedTraits : ["无（选择了不了解）"]
+                };
+            });
+
+            formData.append('Answer_Details', JSON.stringify(answerDetails, null, 2));
+
             try {
-                await fetch(`https://formspree.io/f/${CONFIG.formId}`, { method: 'POST', body: formData, headers: { 'Accept': 'application/json' } });
+                await fetch(`https://formspree.io/f/${CONFIG.formId}`, { 
+                    method: 'POST', 
+                    body: formData, 
+                    headers: { 'Accept': 'application/json' } 
+                });
                 navTo('page-success');
-            } catch (e) { alert("网络异常"); btn.disabled = false; btn.textContent = "重试"; }
+            } catch (e) { 
+                alert("网络异常：" + e.message); 
+                btn.disabled = false; 
+                btn.textContent = "重试"; 
+            }
         };
 
         function navTo(id) {
