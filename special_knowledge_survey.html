@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>发掘我的“专长之光”</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .chat-bubble { opacity: 0; transform: translateY(10px); animation: fadeIn 0.4s forwards; }
+        @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="bg-gray-50 h-screen flex flex-col font-sans">
+    <!-- Header -->
+    <header class="bg-white border-b px-4 py-3 flex items-center shadow-sm">
+        <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-bold mr-3">
+            AI
+        </div>
+        <div>
+            <h1 class="text-sm font-bold text-gray-800">专长探索助手</h1>
+            <p class="text-xs text-green-500">● 在线（代好友收集反馈）</p>
+        </div>
+    </header>
+
+    <!-- Chat Window -->
+    <div id="chat-container" class="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar">
+        <!-- Initial Message -->
+    </div>
+
+    <!-- Input Area -->
+    <div id="input-area" class="p-4 bg-white border-t pb-8 md:pb-4 transition-all">
+        <div class="flex items-end space-x-2 bg-gray-100 rounded-2xl px-4 py-2">
+            <textarea id="user-input" rows="1" class="flex-1 bg-transparent border-none focus:ring-0 text-gray-700 py-1 resize-none text-sm" placeholder="输入你的观察..."></textarea>
+            <button id="send-btn" class="bg-indigo-600 text-white p-2 rounded-full hover:bg-indigo-700 transition disabled:opacity-50" disabled>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
+                </svg>
+            </button>
+        </div>
+        <p class="text-[10px] text-gray-400 mt-2 text-center">您的回复将直接同步给好友，感谢支持</p>
+    </div>
+
+    <!-- Hidden Form for submission -->
+    <form id="submission-form" action="https://formspree.io/f/你的FormspreeID" method="POST" class="hidden"></form>
+
+    <script>
+        const config = {
+            userName: "米克潘", // 请在此处填入你的名字
+            formspreeId: "mnjgleoz" // 请在此处填入你的 Formspree ID
+        };
+
+        const questions = [
+            `嘿！我是 ${config.userName} 的专长探索助手。我们正在寻找他身上那些“习以为常”的天赋。✨\n\n第一个问题：在你的观察中，有哪些事他做起来毫不费力，但你（或其他朋友）觉得相当麻烦或有门槛？`,
+            "很有价值的观察！第二个问题：当你遇到哪类具体的难题、需要决策建议或某种情绪支撑时，脑海中第一个跳出的名字会是他？为什么？",
+            "明白了。第三个问题：想象一下，如果他突然从朋友圈里“消失”了，你觉得哪部分的‘空白’或‘功能’是最难被其他人填补的？",
+            "最后一个问题：在平时聚会或闲聊中，你观察到他最常沉浸、最有激情的话题是什么？那可能藏着他的真才华。",
+            "太感谢你的分享了！🙏 你的这些真实反馈对他的自我发掘意义重大。祝你今天也充满能量，再见！"
+        ];
+
+        let currentStep = 0;
+        let responses = {};
+        const chat = document.getElementById('chat-container');
+        const input = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        const form = document.getElementById('submission-form');
+
+        // Textarea auto-height
+        input.addEventListener('input', () => {
+            input.style.height = 'auto';
+            input.style.height = input.scrollHeight + 'px';
+            sendBtn.disabled = !input.value.trim();
+        });
+
+        function addBubble(text, isUser = false) {
+            const wrapper = document.createElement('div');
+            wrapper.className = `flex ${isUser ? 'justify-end' : 'justify-start'} w-full`;
+            
+            const bubble = document.createElement('div');
+            bubble.className = `${isUser ? 'bg-indigo-600 text-white rounded-br-none' : 'bg-white text-gray-800 rounded-bl-none border shadow-sm'} max-w-[85%] p-3 px-4 rounded-2xl text-sm leading-relaxed chat-bubble whitespace-pre-wrap`;
+            bubble.textContent = text;
+            
+            wrapper.appendChild(bubble);
+            chat.appendChild(wrapper);
+            chat.scrollTo({ top: chat.scrollHeight, behavior: 'smooth' });
+        }
+
+        async function handleSend() {
+            const val = input.value.trim();
+            if (!val || currentStep >= questions.length - 1) return;
+
+            addBubble(val, true);
+            responses[`question_${currentStep + 1}`] = val;
+            
+            input.value = '';
+            input.style.height = 'auto';
+            sendBtn.disabled = true;
+
+            currentStep++;
+            
+            // Artificial delay for "typing" effect
+            setTimeout(() => {
+                addBubble(questions[currentStep]);
+                if (currentStep === questions.length - 1) {
+                    submitData();
+                    document.getElementById('input-area').classList.add('opacity-50', 'pointer-events-none');
+                }
+            }, 1000);
+        }
+
+        async function submitData() {
+            if (config.formspreeId === "你的FormspreeID") {
+                console.warn("未设置 Formspree ID，数据将无法提交");
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('userName', config.userName);
+            for (let key in responses) {
+                formData.append(key, responses[key]);
+            }
+
+            try {
+                await fetch(`https://formspree.io/f/${config.formspreeId}`, {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'Accept': 'application/json' }
+                });
+            } catch (e) {
+                console.error("提交失败", e);
+            }
+        }
+
+        sendBtn.onclick = handleSend;
+        input.onkeydown = (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSend();
+            }
+        };
+
+        // Start the chat
+        window.onload = () => {
+            setTimeout(() => addBubble(questions[0]), 500);
+        };
+    </script>
+</body>
+</html>
