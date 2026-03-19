@@ -3,146 +3,191 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>发掘我的“专长之光”</title>
+    <title>探索米克潘的“专长之光” | Zen & Flow Full Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@200;500&display=swap" rel="stylesheet">
     <style>
-        .chat-bubble { opacity: 0; transform: translateY(10px); animation: fadeIn 0.4s forwards; }
-        @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
+        :root { --zen-bg: #F5F5F0; --zen-ink: #333333; --zen-tea: #D2B48C; --zen-mist: rgba(210, 180, 140, 0.08); }
+        body { font-family: 'Noto Serif SC', serif; background-color: var(--zen-bg); color: var(--zen-ink); overflow: hidden; height: 100vh; }
+        
+        .zen-garden {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none;
+            background-image: repeating-radial-gradient(circle at 50% 50%, var(--zen-tea) 0, var(--zen-tea) 1px, transparent 1px, transparent 60px);
+            opacity: 0.06;
+        }
+
+        .chat-bubble { opacity: 0; transform: translateY(20px); animation: zenFade 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+        @keyframes zenFade { to { opacity: 1; transform: translateY(0); } }
+
+        .inspiration-card { 
+            border: 1px solid rgba(210, 180, 140, 0.2); background: rgba(255, 255, 255, 0.5); 
+            backdrop-filter: blur(8px); border-radius: 16px; margin-bottom: 12px;
+        }
+        
+        /* 默认展开样式 */
+        .expandable-content { max-height: 500px; padding-top: 8px; opacity: 1; transition: all 0.5s ease; }
+        .arrow-icon { transform: rotate(180deg); }
+
+        .zen-illustration { width: 44px; height: 44px; flex-shrink: 0; border-radius: 12px; background: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.02); border: 1px solid rgba(210, 180, 140, 0.1); }
+
+        .ripple-input:focus-within { box-shadow: 0 0 0 6px var(--zen-mist); border-bottom-color: var(--zen-tea); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
-<body class="bg-gray-50 h-screen flex flex-col font-sans">
-    <!-- Header -->
-    <header class="bg-white border-b px-4 py-3 flex items-center shadow-sm">
-        <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-bold mr-3">
-            AI
-        </div>
-        <div>
-            <h1 class="text-sm font-bold text-gray-800">专长探索助手</h1>
-            <p class="text-xs text-green-500">● 在线（代好友收集反馈）</p>
+<body class="flex flex-col">
+    <div class="zen-garden"></div>
+
+    <header class="p-8 text-center relative z-20">
+        <div class="inline-block border-b border-stone-300 pb-2 px-10">
+            <h1 class="text-2xl font-extralight tracking-[0.4em] text-stone-800">米克潘的专长探索</h1>
+            <p class="text-[9px] uppercase tracking-[0.6em] text-stone-400 mt-2 italic">Zen & Flow Insight Collector</p>
         </div>
     </header>
 
-    <!-- Chat Window -->
-    <div id="chat-container" class="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar">
-        <!-- Initial Message -->
-    </div>
+    <div id="chat-container" class="flex-1 overflow-y-auto px-6 space-y-12 no-scrollbar pb-48 max-w-2xl mx-auto w-full relative z-10"></div>
 
-    <!-- Input Area -->
-    <div id="input-area" class="p-4 bg-white border-t pb-8 md:pb-4 transition-all">
-        <div class="flex items-end space-x-2 bg-gray-100 rounded-2xl px-4 py-2">
-            <textarea id="user-input" rows="1" class="flex-1 bg-transparent border-none focus:ring-0 text-gray-700 py-1 resize-none text-sm" placeholder="输入你的观察..."></textarea>
-            <button id="send-btn" class="bg-indigo-600 text-white p-2 rounded-full hover:bg-indigo-700 transition disabled:opacity-50" disabled>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
-                </svg>
+    <div id="input-area" class="fixed bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-[#F5F5F0] via-[#F5F5F0]/95 to-transparent opacity-0 pointer-events-none translate-y-6 transition-all duration-1000 z-30">
+        <div class="max-w-xl mx-auto ripple-input bg-white/60 backdrop-blur-md border-b border-stone-300 flex items-end py-3 px-3 transition-all duration-500 rounded-t-xl">
+            <textarea id="user-input" rows="1" class="flex-1 bg-transparent border-none focus:ring-0 text-sm py-2 resize-none placeholder:text-stone-300 text-stone-700 font-light" placeholder="于此静心落墨..."></textarea>
+            <button id="send-btn" class="text-stone-400 hover:text-stone-700 p-2 transition-all disabled:opacity-20" disabled>
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
             </button>
         </div>
-        <p class="text-[10px] text-gray-400 mt-2 text-center">您的回复将直接同步给好友，感谢支持</p>
     </div>
 
-    <!-- Hidden Form for submission -->
-    <form id="submission-form" action="https://formspree.io/f/你的FormspreeID" method="POST" class="hidden"></form>
-
     <script>
-        const config = {
-            userName: "米克潘", // 请在此处填入你的名字
-            formspreeId: "mnjgleoz" // 请在此处填入你的 Formspree ID
-        };
+        const config = { userName: "米克潘", formspreeId: "mnjgleoz" };
 
-        const questions = [
-            `嘿！我是 ${config.userName} 的专长探索助手。我们正在寻找他身上那些“习以为常”的天赋。✨\n\n第一个问题：在你的观察中，有哪些事他做起来毫不费力，但你（或其他朋友）觉得相当麻烦或有门槛？`,
-            "很有价值的观察！第二个问题：当你遇到哪类具体的难题、需要决策建议或某种情绪支撑时，脑海中第一个跳出的名字会是他？为什么？",
-            "明白了。第三个问题：想象一下，如果他突然从朋友圈里“消失”了，你觉得哪部分的‘空白’或‘功能’是最难被其他人填补的？",
-            "最后一个问题：在平时聚会或闲聊中，你观察到他最常沉浸、最有激情的话题是什么？那可能藏着他的真才华。",
-            "太感谢你的分享了！🙏 你的这些真实反馈对他的自我发掘意义重大。祝你今天也充满能量，再见！"
+        const dimensions = [
+            {
+                title: "不对称努力",
+                question: `嘿！我是 ${config.userName} 的 AI 伙伴。我们正在寻找他那些“习以为常”的天赋。✨\n\n维度一：哪件事他做起来毫不费力、甚至乐在其中，但别人却觉得辛苦？`,
+                guide: "🚀 以上场景仅供参考，你可以参考它们，也可以完全跳出这些框架，大胆分享你对他最真实、最直观的观察。",
+                inspirations: [
+                    { label: "职场协作", svg: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />', hint: "比如他处理复杂逻辑、快速输出文档，或者在压力巨大的会议中依然能从容应对？" },
+                    { label: "生活交友", svg: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />', hint: "比如他在组织大型活动、调停朋友矛盾，或者是处理琐碎旅行攻略时的那份自然？" },
+                    { label: "硬核钻研", svg: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />', hint: "比如他钻研某个新工具、新代码、或者新领域时的那种“废寝忘食”的兴奋劲儿？" }
+                ]
+            },
+            {
+                title: "首选依赖",
+                question: "维度二：【首选依赖】。当你遇到哪类具体的难题时，脑海中第一个跳出的名字会是他？",
+                guide: "🚀 以上场景仅供参考，你可以参考它们，也可以完全跳出这些框架，大胆分享你对他最真实、最直观的观察。",
+                inspirations: [
+                    { label: "决策咨询", svg: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />', hint: "面临职业选择、情感困局、或者重大人生决策，需要一个极度理性的声音？" },
+                    { label: "技术解决", svg: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />', hint: "某个软件卡了、硬件崩了、或者需要搞定一个完全不熟悉的复杂技术流程？" },
+                    { label: "情绪支撑", svg: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />', hint: "当你感到无比焦虑或迷茫，需要一个能听懂你且让你瞬间平静下来的人？" }
+                ]
+            },
+            {
+                title: "独特价值",
+                question: "维度三：【独特价值】。想象一下，如果他突然从朋友圈“消失”了，哪部分的‘空白’是最难被其他人填补的？",
+                guide: "🚀 以上场景仅供参考，你可以参考它们，也可以完全跳出这些框架，大胆分享你对他最真实、最直观的观察。",
+                inspirations: [
+                    { label: "审美品味", svg: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />', hint: "他独特的视角、生活美学，或是他安利的东西总能精准击中你的某种“高级感”？" },
+                    { label: "认知眼界", svg: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />', hint: "他那种不随大流的、洞察事物本质的“第一性原理”思维方式？" },
+                    { label: "知识连接", svg: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101 m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />', hint: "他能把风马牛不相及的知识串联起来，给出一些让人拍案叫绝的深度洞察？" }
+                ]
+            },
+            {
+                title: "潜意识行为",
+                question: "维度四：【潜意识行为】。天赋往往藏在最不经意的习惯里。请尽情发挥，哪怕是一个小细节也很有价值！",
+                guide: "🚀 以上场景仅供参考，你可以参考它们，也可以完全跳出这些框架，大胆分享你对他最真实、最直观的观察。",
+                inspirations: [
+                    { label: "兴趣沉浸", svg: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />', hint: "当他谈起什么话题（电影、科技等）时，眼神会瞬间发亮？" },
+                    { label: "自发勤奋", svg: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z" />', hint: "他在哪些事情上表现出了“即便没人付钱、我也必须搞定”的本能执着？" },
+                    { label: "天赋谈吐", svg: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />', hint: "在最放松的闲聊中，他总能不经意地吐露出一些充满智慧的总结？" }
+                ]
+            }
         ];
 
-        let currentStep = 0;
-        let responses = {};
+        let currentIdx = 0; let responses = {};
         const chat = document.getElementById('chat-container');
         const input = document.getElementById('user-input');
         const sendBtn = document.getElementById('send-btn');
-        const form = document.getElementById('submission-form');
-
-        // Textarea auto-height
-        input.addEventListener('input', () => {
-            input.style.height = 'auto';
-            input.style.height = input.scrollHeight + 'px';
-            sendBtn.disabled = !input.value.trim();
-        });
+        const inputArea = document.getElementById('input-area');
 
         function addBubble(text, isUser = false) {
             const wrapper = document.createElement('div');
             wrapper.className = `flex ${isUser ? 'justify-end' : 'justify-start'} w-full`;
-            
             const bubble = document.createElement('div');
-            bubble.className = `${isUser ? 'bg-indigo-600 text-white rounded-br-none' : 'bg-white text-gray-800 rounded-bl-none border shadow-sm'} max-w-[85%] p-3 px-4 rounded-2xl text-sm leading-relaxed chat-bubble whitespace-pre-wrap`;
+            bubble.className = `${isUser ? 'text-[#D2B48C] italic' : 'text-stone-700 font-light'} max-w-[90%] text-[13.5px] leading-[2.2] chat-bubble whitespace-pre-wrap px-2`;
             bubble.textContent = text;
-            
             wrapper.appendChild(bubble);
             chat.appendChild(wrapper);
             chat.scrollTo({ top: chat.scrollHeight, behavior: 'smooth' });
         }
 
+        function createInspirationCard(data) {
+            const container = document.createElement('div');
+            container.className = "space-y-4 chat-bubble max-w-sm mx-auto w-full pt-4";
+            
+            data.inspirations.forEach(ins => {
+                const card = document.createElement('div');
+                card.className = "inspiration-card p-4 flex items-start gap-4";
+                card.innerHTML = `
+                    <div class="zen-illustration shadow-sm">
+                        <svg class="w-6 h-6 text-stone-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">${ins.svg}</svg>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex justify-between items-center text-stone-700 font-medium text-sm">
+                            <span>${ins.label}参考</span>
+                        </div>
+                        <div class="expandable-content text-stone-400 italic font-light leading-relaxed text-xs">“${ins.hint}”</div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            const guideText = document.createElement('p');
+            guideText.className = "text-[10px] text-stone-400 italic mt-8 px-4 text-center leading-loose tracking-wider opacity-90";
+            guideText.textContent = data.guide;
+            container.appendChild(guideText);
+
+            chat.appendChild(container);
+            chat.scrollTo({ top: chat.scrollHeight, behavior: 'smooth' });
+        }
+
         async function handleSend() {
             const val = input.value.trim();
-            if (!val || currentStep >= questions.length - 1) return;
-
+            if (!val) return;
             addBubble(val, true);
-            responses[`question_${currentStep + 1}`] = val;
-            
+            responses[`dim_${currentIdx + 1}`] = val;
             input.value = '';
             input.style.height = 'auto';
-            sendBtn.disabled = true;
-
-            currentStep++;
-            
-            // Artificial delay for "typing" effect
+            inputArea.classList.add('opacity-0', 'translate-y-6');
+            currentIdx++;
             setTimeout(() => {
-                addBubble(questions[currentStep]);
-                if (currentStep === questions.length - 1) {
+                if (currentIdx < dimensions.length) { initStep(currentIdx); }
+                else {
+                    addBubble(`万物皆有灵，感谢你的这一份见证。🙏\n\n你的这些感悟已同步送达至米克潘。祝你常在心流，再见。`);
                     submitData();
-                    document.getElementById('input-area').classList.add('opacity-50', 'pointer-events-none');
                 }
-            }, 1000);
+            }, 1200);
+        }
+
+        function initStep(idx) {
+            addBubble(dimensions[idx].question);
+            setTimeout(() => {
+                createInspirationCard(dimensions[idx]);
+                setTimeout(() => {
+                    inputArea.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-6');
+                    input.focus();
+                }, 1000);
+            }, 1500);
         }
 
         async function submitData() {
-            if (config.formspreeId === "你的FormspreeID") {
-                console.warn("未设置 Formspree ID，数据将无法提交");
-                return;
-            }
-            
             const formData = new FormData();
-            formData.append('userName', config.userName);
-            for (let key in responses) {
-                formData.append(key, responses[key]);
-            }
-
-            try {
-                await fetch(`https://formspree.io/f/${config.formspreeId}`, {
-                    method: 'POST',
-                    body: formData,
-                    headers: { 'Accept': 'application/json' }
-                });
-            } catch (e) {
-                console.error("提交失败", e);
-            }
+            formData.append('subject', `${config.userName}的专长探索报告 - Zen Final`);
+            for (let key in responses) formData.append(key, responses[key]);
+            try { await fetch(`https://formspree.io/f/${config.formspreeId}`, { method: 'POST', body: formData, headers: { 'Accept': 'application/json' } }); } catch (e) { console.error(e); }
         }
 
         sendBtn.onclick = handleSend;
-        input.onkeydown = (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                handleSend();
-            }
-        };
-
-        // Start the chat
-        window.onload = () => {
-            setTimeout(() => addBubble(questions[0]), 500);
-        };
+        input.oninput = () => { input.style.height = 'auto'; input.style.height = input.scrollHeight + 'px'; sendBtn.disabled = !input.value.trim(); };
+        input.onkeydown = (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } };
+        window.onload = () => setTimeout(() => initStep(0), 1000);
     </script>
 </body>
 </html>
