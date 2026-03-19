@@ -3,229 +3,189 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>探索米克潘的“专长之光” </title>
+    <title>米克潘的行为投影 | v9.5 数据分离稳定版</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@200;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@200;500;700&display=swap" rel="stylesheet">
+    <!-- 数据文件注入点 -->
+    <script src="./special_knowledge_data.js"></script>
     <style>
         :root { --zen-bg: #F5F5F0; --zen-ink: #333333; --zen-tea: #D2B48C; --zen-mist: rgba(210, 180, 140, 0.08); }
-        body { font-family: 'Noto Serif SC', serif; background-color: var(--zen-bg); color: var(--zen-ink); -webkit-font-smoothing: antialiased; }
+        body { font-family: 'Noto Serif SC', serif; background-color: var(--zen-bg); color: var(--zen-ink); margin: 0; padding: 0; height: 100vh; overflow: hidden; -webkit-font-smoothing: antialiased; }
         .zen-garden { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; background-image: repeating-radial-gradient(circle at 50% 50%, var(--zen-tea) 0, var(--zen-tea) 0.5px, transparent 0.5px, transparent 60px); opacity: 0.05; }
-        .dimension-page { display: none; opacity: 0; transform: translateY(20px); transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); }
-        .dimension-page.active { display: block; opacity: 1; transform: translateY(0); }
-        .question-card { border: 1px solid rgba(210, 180, 140, 0.15); background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(8px); border-radius: 16px; transition: all 0.5s; }
-        .question-card:hover { border-color: var(--zen-tea); background: rgba(255, 255, 255, 0.8); }
-        .expand-section { max-height: 2000px; opacity: 1; padding-top: 16px; overflow: hidden; }
-        .tag-btn { border: 1px solid rgba(210, 180, 140, 0.3); transition: all 0.3s; color: #666; font-size: 11px; padding: 6px 12px; border-radius: 9999px; background: white; margin: 4px; }
-        .tag-btn.active { background-color: var(--zen-tea); color: white; border-color: var(--zen-tea); box-shadow: 0 4px 12px rgba(210, 180, 140, 0.3); }
-        .recording-pulse { animation: pulse 1.5s infinite; color: #ef4444 !important; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }
+        .page { display: none; height: 100%; flex-direction: column; justify-content: center; width: 100%; padding: 24px; box-sizing: border-box; overflow-y: auto; }
+        .page.active { display: flex; }
+        .option-btn { border: 1px solid rgba(210, 180, 140, 0.3); background: rgba(255, 255, 255, 0.5); border-radius: 12px; padding: 16px 20px; margin-bottom: 10px; text-align: left; cursor: pointer; width: 100%; font-size: 14px; transition: all 0.2s; outline: none; -webkit-tap-highlight-color: transparent; }
+        .option-btn.selected { border-color: #c2410c; background: #fff7ed; color: #c2410c; border-width: 2px; }
+        .tag-btn { border: 1px solid rgba(210, 180, 140, 0.4); padding: 12px 20px; border-radius: 9999px; font-size: 13px; background: white; cursor: pointer; margin: 6px; transition: all 0.3s; }
+        .tag-btn.selected { background-color: var(--zen-tea); color: white; border-color: var(--zen-tea); }
+        .progress-bar { position: fixed; top: 0; left: 0; height: 4px; background: var(--zen-tea); z-index: 100; transition: width 0.3s; }
+        textarea { border-radius: 8px; border: 1px solid rgba(210, 180, 140, 0.3); background: rgba(255, 255, 255, 0.6); width: 100%; padding: 15px; font-family: inherit; font-size: 14px; line-height: 1.6; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
-<body class="p-6 md:p-12 min-h-screen flex flex-col items-center">
+<body>
     <div class="zen-garden"></div>
+    <div class="progress-bar" id="progressBar" style="width: 0%"></div>
 
-    <header class="text-center mb-12 max-w-2xl w-full">
-        <h1 class="text-2xl font-extralight tracking-[0.4em] text-stone-800 border-b border-stone-300 pb-3 inline-block px-12">米克潘的专长探索</h1>
-        <p class="text-[10px] uppercase tracking-[0.5em] text-stone-400 mt-4 italic">Unified Icons Edition v6.1</p>
-    </header>
+    <main id="app" class="max-w-xl mx-auto h-full relative">
+        <!-- 1. 首页 -->
+        <div class="page active" id="page-welcome">
+            <div class="text-center mb-10">
+                <h1 class="text-2xl font-extralight tracking-[0.4em] mb-4">米克潘 · 行为投影</h1>
+                <p class="text-[10px] uppercase text-stone-400 tracking-widest">Data-Separated Stable v9.5</p>
+            </div>
+            <div class="space-y-6 text-center">
+                <p class="text-stone-600 text-sm tracking-widest px-4 leading-relaxed italic">“勾勒你眼中的真实。”</p>
+                <div class="flex flex-wrap justify-center py-4" id="id-grid">
+                    <button class="tag-btn" onclick="tId(this, 'work')">💼 职场战友</button>
+                    <button class="tag-btn" onclick="tId(this, 'life')">☕ 生活挚友</button>
+                    <button class="tag-btn" onclick="tId(this, 'tech')">💻 技术同路人</button>
+                    <button class="tag-btn" onclick="tId(this, 'social')">🤳 围观群众</button>
+                </div>
+                <button id="start-btn" onclick="doStart()" class="bg-stone-800 text-white px-16 py-4 rounded-full text-xs tracking-[0.3em] opacity-30 shadow-lg" disabled>开启投影</button>
+            </div>
+        </div>
 
-    <main id="survey-container" class="max-w-xl w-full flex-1 mb-32">
+        <!-- 2. 答题页 -->
+        <div class="page" id="page-quiz">
+            <div id="q-content" class="w-full"></div>
+        </div>
+
+        <!-- 3. 总结页 -->
+        <div class="page" id="page-summary">
+            <div class="text-center mb-6">
+                <p class="text-stone-700 text-lg font-light tracking-widest">观察报告初稿</p>
+            </div>
+            <textarea id="summary-text" class="min-h-[300px] focus:border-stone-400 outline-none" rows="12"></textarea>
+            <button onclick="doFinal()" id="final-btn" class="mt-8 bg-stone-800 text-white py-4 rounded-xl text-xs tracking-[0.4em] w-full shadow-xl">同步报告</button>
+        </div>
+
+        <!-- 4. 成功页 -->
+        <div class="page" id="page-success">
+            <div class="text-center space-y-4">
+                <p class="text-xl font-light text-stone-800 tracking-[0.3em]">投影圆满，感谢见证</p>
+            </div>
+        </div>
     </main>
 
-    <footer class="fixed bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-[#F5F5F0] via-[#F5F5F0] to-transparent z-20 flex flex-col items-center space-y-4">
-        <div id="progress-dots" class="flex space-x-2"></div>
-        <button id="next-btn" class="bg-stone-800 text-[#F5F5F0] px-14 py-3 rounded-full text-sm tracking-[0.2em] font-light shadow-lg hover:bg-stone-700 active:scale-95 transition-all">下一题</button>
-    </footer>
-
     <script>
-        const config = { userName: "米克潘", formspreeId: "mnjgleoz" };
-        const dimensions = [
-            {
-                title: "维度一：不对称努力",
-                question: "哪件事米克潘做起来毫不费力、甚至乐在其中，但别人却觉得辛苦？",
-                guide: "🚀 以上场景仅供参考，你可以参考它们，也可以完全跳出这些框架，大胆分享你对他最真实、最直观的观察。",
-                inspirations: [
-                    { 
-                        label: "职场协作", svg: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />',
-                        options: ["混乱会议中理清主线", "极速撰写严谨方案", "处理复杂Excel建模", "突发危机的冷静对策", "瞬间听懂沟通潜台词", "把枯燥数据讲成故事", "最短路径的项目管理", "审美决策一秒定调", "快速自学复杂软件", "琐事录入乐在其中"]
-                    },
-                    { 
-                        label: "生活交友", svg: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />',
-                        options: ["高效率旅行攻略制定", "敏锐察觉冷落并化解", "顶级的纠纷调停者", "快速建立深度社交链接", "发现宝藏餐厅/打卡地", "超强的搬家装修统筹", "复杂哲学通俗化表达", "极具天赋的谈判砍价", "生活细节的敏锐直觉", "排队等待中自得其乐"]
-                    },
-                    { 
-                        label: "硬核钻研", svg: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />',
-                        options: ["能读进厚如字典的文档", "为底层逻辑闭关数日", "对算法模型的直觉审美", "乐此不疲拆装机器", "海量信息中过滤噪音", "对冷门领域的深度痴迷", "极高频尝试新工具", "思维导图拆解复杂系统", "高门槛知识学起来如喝水", "自发进行高强度训练"]
-                    }
-                ]
-            },
-            {
-                title: "维度二：首选依赖",
-                question: "当你遇到哪类具体的难题时，脑海中第一个跳出的名字会是他？",
-                guide: "🚀 以上场景仅供参考，你可以参考它们，也可以完全跳出这些框架，大胆分享你对他最真实、最直观的观察。",
-                inspirations: [
-                    { 
-                        label: "决策咨询", svg: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />',
-                        options: ["跳槽转型的十字路口", "纠结情感问题的清醒药", "财务投资的风险判断", "冲突中决定强硬或妥协", "看穿本质的迷茫时刻", "创业构思的风险提示", "认知差的降维打击", "找回底层的逻辑自信", "求证“疯狂”想法可行性", "长远战略决策咨询"]
-                    },
-                    { 
-                        label: "技术解决", svg: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />',
-                        options: ["智能设备莫名的故障", "代码/工具实现自动化", "复杂申报流程/条文解读", "数字化优化工作流", "拆解极强逻辑的死结", "寻找极其精确的信息点", "AI提示词或新技术应用", "极客思维搞定生活难题", "想法变可视化原型图表", "任何变简单的技术探讨"]
-                    },
-                    { 
-                        label: "情绪支撑", svg: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />',
-                        options: ["焦虑时刻的梳理与接住", "被误解委屈时的共情", "找回生活节奏与宁静", "深夜的灵魂深度交流", "展示最真实的脆弱", "降低精神熵的冷静感", "坚定被认可支持的瞬间", "看透失败的积极价值", "眼神同频的默契感", "人生意义的虚无探讨"]
-                    }
-                ]
-            },
-            {
-                title: "维度三：独特价值",
-                question: "如果他突然从朋友圈“消失”了，哪部分的‘空白’是最难被其他人填补的？",
-                guide: "🚀 以上场景仅供参考，你可以参考它们，也可以完全跳出这些框架，大胆分享你对他最真实、最直观的观察。",
-                inspirations: [
-                    { 
-                        label: "审美品味", svg: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-7.714 2.143L11 21l-2.286-6.857L1 12l7.714-2.143L11 3z" />',
-                        options: ["不踩雷的小众安利", "穿搭色彩空间布局见解", "洞察品牌产品的灵魂", "高级克制的生活质感", "发现平凡中的不凡美", "精准体现品味的送礼", "不随大流的独特审美", "文字中淡淡的疏离美感", "如何优雅地生活具象化"]
-                    },
-                    { 
-                        label: "认知眼界", svg: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />',
-                        options: ["早半年感知的趋势能力", "敢于说真相的独立思考", "历史哲学的独特解构", "让人震撼的看世界角度", "一眼看穿商业底层逻辑", "深刻到冷酷的人性理解", "第一性原理的实操应用", "跨周期的长线思维方式", "极度客观的求真态度"]
-                    },
-                    { 
-                        label: "知识连接", svg: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.08 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" />',
-                        options: ["跨学科知识的自如串联", "行走的人形图书馆", "高深理论的易懂类比", "跨圈子行业的翻译能力", "发现跨行业商业机会", "碎片信息的系统缝合", "底层通识的深度探讨", "不同背景人的组织力", "少走弯路的高效学习路径"]
-                    }
-                ]
-            },
-            {
-                title: "维度四：潜意识行为",
-                question: "天赋往往藏在最不经意的习惯里。请尽情发挥，哪怕是一个小细节也很有价值！",
-                guide: "🚀 以上场景仅供参考，你可以参考它们，也可以完全跳出这些框架，大胆分享你对他最真实、最直观的观察。",
-                inspirations: [
-                    { 
-                        label: "兴趣沉浸", svg: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />',
-                        options: ["谈起特定话题时眼神发亮", "不计成本纯粹快乐的研究", "无用之学上投入惊人时间", "度假时不自觉研究文化", "必须搞个水落石出的执念", "翻烂了写满批注的书籍"]
-                    },
-                    { 
-                        label: "自发勤奋", svg: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z" />',
-                        options: ["没人监督时的恐怖自律", "不消耗意志力的精进追求", "细枝末节上的完美主义", "通过学习来放松的倾向", "推翻重做十次的完美执念", "走路吃饭都在脑内建模"]
-                    },
-                    { 
-                        label: "天赋谈吐", svg: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />',
-                        options: ["闲聊中频出的哲理金句", "无需准备的极透表达", "自带冷幽默的洞察吐槽", "语言安抚或激发斗志", "相左意见中的尊重话术", "讲进别人心里的沟通技巧"]
-                    }
-                ]
-            }
-        ];
+        const CONFIG = { name: "米克潘", formId: "mnjgleoz" };
+        let G_STATE = { idents: [], qs: [], cur: 0, ans: {} };
 
-        let currentPage = 0;
-        const container = document.getElementById('survey-container');
-        const nextBtn = document.getElementById('next-btn');
-        const dotsContainer = document.getElementById('progress-dots');
+        // 身份选择
+        window.tId = function(btn, id) {
+            btn.classList.toggle('selected');
+            if (G_STATE.idents.includes(id)) G_STATE.idents = G_STATE.idents.filter(i => i !== id);
+            else G_STATE.idents.push(id);
+            const startBtn = document.getElementById('start-btn');
+            startBtn.disabled = G_STATE.idents.length === 0;
+            startBtn.style.opacity = G_STATE.idents.length > 0 ? "1" : "0.3";
+        };
 
-        function renderPages() {
-            dimensions.forEach((dim, idx) => {
-                const page = document.createElement('div');
-                page.className = `dimension-page ${idx === 0 ? 'active' : ''}`;
-                page.innerHTML = `
-                    <div class="mb-10 px-4">
-                        <h2 class="text-stone-400 text-xs tracking-[0.2em] mb-3 font-medium">${dim.title}</h2>
-                        <p class="text-stone-700 text-lg leading-relaxed font-light">${dim.question}</p>
-                    </div>
-                    <div class="space-y-6">
-                        ${dim.inspirations.map((ins, i) => `
-                            <div class="question-card p-6">
-                                <div class="flex items-center gap-4 mb-5">
-                                    <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-stone-500 border border-stone-100 flex-shrink-0 shadow-sm">
-                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">${ins.svg}</svg>
-                                    </div>
-                                    <div class="text-stone-700 text-sm font-medium tracking-wide">${ins.label}参考</div>
-                                </div>
-                                <div class="expand-section">
-                                    <div class="flex flex-wrap gap-1 mb-6" data-dim="${idx}" data-ins="${i}">
-                                        ${ins.options.map(opt => `<button class="tag-btn" onclick="this.classList.toggle('active')">${opt}</button>`).join('')}
-                                    </div>
-                                    <div class="bg-white/40 border-b border-stone-200 flex items-end py-2 px-1 relative">
-                                        <textarea class="survey-input flex-1 bg-transparent border-none focus:ring-0 text-sm py-1 resize-none placeholder:text-stone-300 text-stone-600 font-light" data-dim="${idx}" data-ins="${i}" placeholder="上述选择外，还有更多见解感受？在此分享..."></textarea>
-                                        <button class="mic-btn text-stone-300 hover:text-stone-500 p-2 transition-all">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 116 0v6a3 3 0 01-3 3z"></path></svg>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                    <p class="text-[10px] text-stone-400 italic mt-12 px-8 text-center leading-loose tracking-wider opacity-80">${dim.guide}</p>
-                `;
-                container.appendChild(page);
-                const dot = document.createElement('div');
-                dot.className = `w-1.5 h-1.5 rounded-full ${idx === 0 ? 'bg-stone-800' : 'bg-stone-200'} transition-all`;
-                dotsContainer.appendChild(dot);
-            });
-            initSpeech();
-        }
-
-        function initSpeech() {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRecognition) {
-                document.querySelectorAll('.mic-btn').forEach(btn => btn.style.display = 'none');
+        // 核心抽题逻辑
+        window.doStart = function() {
+            if (typeof QUESTION_DATA === 'undefined') {
+                alert("数据文件加载失败，请确保 special_knowledge_data.js 存在且在同一目录下。");
                 return;
             }
-            const recognition = new SpeechRecognition();
-            recognition.lang = 'zh-CN';
-            document.querySelectorAll('.mic-btn').forEach(btn => {
-                const textarea = btn.parentElement.querySelector('textarea');
-                btn.onclick = () => {
-                    recognition.start();
-                    btn.querySelector('svg').classList.add('recording-pulse');
-                    recognition.onresult = (e) => { textarea.value += e.results[0][0].transcript; };
-                    recognition.onend = () => btn.querySelector('svg').classList.remove('recording-pulse');
-                };
-            });
+            
+            let primaryPool = [];
+            G_STATE.idents.forEach(id => { if (QUESTION_DATA[id]) primaryPool = primaryPool.concat(QUESTION_DATA[id]); });
+            
+            // 全量乱序池
+            let allPool = [];
+            Object.values(QUESTION_DATA).forEach(list => allPool = allPool.concat(list));
+            
+            // 逻辑：优先从选中的身份中抽，不足10道从全量池（排除已选）中补齐
+            let finalQs = primaryPool.sort(() => 0.5 - Math.random()).slice(0, 10);
+            if (finalQs.length < 10) {
+                let remaining = allPool.filter(q => !finalQs.includes(q)).sort(() => 0.5 - Math.random());
+                finalQs = finalQs.concat(remaining.slice(0, 10 - finalQs.length));
+            }
+            
+            G_STATE.qs = finalQs;
+            navTo('page-quiz');
+            renderQ();
+        };
+
+        function renderQ() {
+            const q = G_STATE.qs[G_STATE.cur];
+            const sel = G_STATE.ans[G_STATE.cur] || [];
+            const container = document.getElementById('q-content');
+            
+            let optionsHtml = q.a.map((text, i) => `
+                <button class="option-btn ${sel.includes(i) ? 'selected' : ''}" onclick="tOpt(${i})">
+                    <span class="mr-3 opacity-30 italic font-serif">${String.fromCharCode(65+i)} /</span> ${text}
+                </button>
+            `).join('');
+
+            container.innerHTML = `
+                <div class="text-center mb-8 px-2">
+                    <span class="text-[10px] text-stone-400 tracking-[0.3em] font-medium uppercase">Insight ${G_STATE.cur + 1} / 10</span>
+                    <p class="text-stone-700 text-lg font-light mt-4 leading-relaxed">${q.q}</p>
+                </div>
+                <div class="space-y-2 mb-8">
+                    ${optionsHtml}
+                    <button class="option-btn ${sel.includes(4) ? 'selected' : ''}" onclick="tOpt(4)">
+                        <span class="mr-3 opacity-30 italic font-serif text-stone-400">E /</span> <span class="text-stone-400 italic font-light">他不擅长此场景 / 我不了解</span>
+                    </button>
+                </div>
+                <button onclick="doNext()" class="bg-stone-800 text-white py-4 rounded-xl text-xs tracking-[0.4em] w-full shadow-lg">确认继续</button>
+            `;
+            document.getElementById('progressBar').style.width = ((G_STATE.cur + 1) / 11 * 100) + '%';
         }
 
-        nextBtn.onclick = () => {
-            const pages = document.querySelectorAll('.dimension-page');
-            const dots = dotsContainer.querySelectorAll('div');
-            if (currentPage < dimensions.length - 1) {
-                pages[currentPage].classList.remove('active');
-                dots[currentPage].classList.replace('bg-stone-800', 'bg-stone-200');
-                currentPage++;
-                pages[currentPage].classList.add('active');
-                dots[currentPage].classList.replace('bg-stone-200', 'bg-stone-800');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                if (currentPage === dimensions.length - 1) nextBtn.textContent = "完成并提交";
+        window.tOpt = function(idx) {
+            if (!G_STATE.ans[G_STATE.cur]) G_STATE.ans[G_STATE.cur] = [];
+            let current = G_STATE.ans[G_STATE.cur];
+            if (idx === 4) G_STATE.ans[G_STATE.cur] = [4];
+            else {
+                current = current.filter(v => v !== 4);
+                if (current.includes(idx)) current = current.filter(v => v !== idx);
+                else current.push(idx);
+                G_STATE.ans[G_STATE.cur] = current;
+            }
+            renderQ();
+        };
+
+        window.doNext = function() {
+            if ((G_STATE.ans[G_STATE.cur] || []).length === 0) return alert("请先勾选观察到的表现");
+            if (G_STATE.cur < G_STATE.qs.length - 1) {
+                G_STATE.cur++; renderQ();
             } else {
-                submitSurvey();
+                buildFinal();
             }
         };
 
-        async function submitSurvey() {
-            nextBtn.textContent = "提交中...";
-            nextBtn.disabled = true;
-            const finalData = {};
-            document.querySelectorAll('.question-card').forEach((card, idx) => {
-                const tags = Array.from(card.querySelectorAll('.tag-btn.active')).map(b => b.textContent);
-                const text = card.querySelector('textarea').value.trim();
-                const dimIdx = card.querySelector('textarea').dataset.dim;
-                const insLabel = dimensions[dimIdx].inspirations[card.querySelector('textarea').dataset.ins].label;
-                if (tags.length > 0 || text) {
-                    finalData[`维度${parseInt(dimIdx)+1}_${insLabel}`] = `【标签】: ${tags.join(', ')} \n【补充】: ${text || '无'}`;
-                }
-            });
-            const formData = new FormData();
-            formData.append('subject', `${config.userName}的专长探索报告 v6.1`);
-            for (let k in finalData) formData.append(k, finalData[k]);
-            try {
-                await fetch(`https://formspree.io/f/${config.formspreeId}`, { method: 'POST', body: formData, headers: { 'Accept': 'application/json' } });
-                container.innerHTML = `<div class="text-center mt-32"><p class="text-xl font-light text-stone-800 tracking-widest mb-4">万物皆有灵，感谢见证。</p><p class="text-xs text-stone-400 italic">反馈已传达给米克潘。祝常在心流。</p></div>`;
-                nextBtn.style.display = 'none';
-                dotsContainer.style.display = 'none';
-            } catch (e) { alert("网络异常，请重试"); nextBtn.disabled = false; nextBtn.textContent = "重新提交"; }
+        function buildFinal() {
+            navTo('page-summary');
+            document.getElementById('progressBar').style.width = '100%';
+            let traits = [];
+            for (let i in G_STATE.ans) {
+                G_STATE.ans[i].forEach(idx => { if (idx < 4) traits.push(G_STATE.qs[i].t[idx]); });
+            }
+            traits = [...new Set(traits)].slice(0, 6);
+            let summary = `在我的观察中，米克潘展现出了出色的${traits.join('、')}等特质。他处理事情带有一种自然的节奏感。\n\n除此之外，我还发现他...（在此补充更私人的记忆）`;
+            document.getElementById('summary-text').value = summary;
         }
 
-        renderPages();
+        window.doFinal = async function() {
+            const btn = document.getElementById('final-btn');
+            btn.disabled = true; btn.textContent = "同步中...";
+            const formData = new FormData();
+            formData.append('Identity', G_STATE.idents.join(', '));
+            formData.append('Report', document.getElementById('summary-text').value);
+            try {
+                await fetch(`https://formspree.io/f/${CONFIG.formId}`, { method: 'POST', body: formData, headers: { 'Accept': 'application/json' } });
+                navTo('page-success');
+            } catch (e) { alert("网络异常"); btn.disabled = false; btn.textContent = "重试"; }
+        };
+
+        function navTo(id) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            window.scrollTo({top: 0});
+        }
     </script>
 </body>
 </html>
